@@ -67,15 +67,11 @@
 
         <center>
 
-        <p class="green">Calculates mixed equilibrium for given matrix. Specific calculations, along with explanations, are shown <a href="learnMore.html">here.</a></p>
+        <p class="green">Calculates mixed equilibrium for any given matrix.</p>
         <br>
         <p style="margin-bottom:0;" class="green">Click the buttons to rename them or insert/delete rows.</p>
         <p style="margin-bottom:0;" class="green">Use the '+' buttons to add more rows/columns.</p>
         <br>
-        <!-- <input checked type="checkbox" id="zs" name="zs">
-        <label for="zs">Game is zero-sum</label> <br>
-        <input type="checkbox" id="zs2" name="zs2">
-        <label for="zs2">Other possible option</label>  -->
         <div id="answerspace" class="answerspace">
             poopmilk
         </div>
@@ -188,6 +184,7 @@
         <br>
         <input id="loadString" style="width: 60%;">
         <button onclick="loadSavedTable()">Load</button>
+        <p class="answerspace" id="loadMsg">Paste the code given from the "save" button, then press load.</p>
         </center>
     </head>
 
@@ -462,6 +459,7 @@ function loadSavedTable() {
     const currentColNum = table.rows[0].cells.length;
 
     if (!loadString) {
+        document.getElementById('loadMsg').style.display = "block";
         return;
     }
 
@@ -751,7 +749,7 @@ function display() {
     table.getElementsByTagName("tr")[1].getElementsByTagName("button")[0].style.backgroundColor = `rgb(255, ${colorValue}, ${colorValue})`;
 
     if (t != 0) {
-        opt1 += title+"<"+t+"> |";
+        opt1 += title+"<"+t+"%> |";
     }
 	i=2;
 	while (i<=m) {
@@ -759,7 +757,7 @@ function display() {
         t=Math.trunc(t)/10;
         if (t != 0) {
             title = table.rows[i].cells[0].textContent;
-		    opt1+=title+"<"+t+"> |";
+		    opt1+=title+"<"+t+"%> |";
         }
         colorValue = 255 - Math.round((t/100) * 255);
         table.getElementsByTagName("tr")[i].getElementsByTagName("button")[0].style.backgroundColor = `rgb(255, ${colorValue}, ${colorValue})`;
@@ -774,7 +772,7 @@ function display() {
     table.getElementsByTagName("tr")[0].getElementsByTagName("button")[1].style.backgroundColor = `rgb(255, ${colorValue}, ${colorValue})`;
 
     if (t != 0) {
-        opt2 += title+"<"+t+"> |";
+        opt2 += title+"<"+t+"%> |";
     }
 	j=2;
 	while (j<=n) {
@@ -782,7 +780,7 @@ function display() {
         t=Math.trunc(t)/10;
         if (t != 0) {
             title = table.rows[0].cells[j].textContent;
-		    opt2+=title+"<"+t+"> |";
+		    opt2+=title+"<"+t+"%> |";
         }
 
         colorValue = 255 - Math.round((t/100) * 255);
