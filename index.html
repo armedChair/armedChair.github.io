@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        body {
+            align-items: center;
+            background-color: rgb(218, 218, 218);
+        }
+        input[type="text"] {
+            text-align: center;
+            margin: 0em;
+            padding: 1px 0px;
+            box-sizing: border-box;
+        }
+        td {
+            overflow: hidden;
+        }
+        td input {
+            width: 100%;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        th, td{
+            border:2px solid rgb(0, 0, 0);
+        }
+        table {
+            width: auto;
+            table-layout: fixed;
+            white-space: nowrap;
+            border-collapse: collapse;
+            border-spacing: 2px;
+            text-align: center;
+            border:5px solid rgb(0, 0, 0);
+        }
+
+        .green {
+            font-size : 20px;
+            width: 85%;
+            background-color : #cfc;
+            padding : 0;
+            margin : 0;
+            line-height : 20px;
+        }
+        .title {
+          margin-top:15px;
+          width:100%;
+          text-align: center;
+          font-size: 5vw;
+          font-weight: bold;
+          overflow-wrap: break-word;
+        }
+        .option {
+            visibility: hidden;
+        }
+        .answerspace {
+            display: none;
+        }
+
+    </style>
+
+    <head>
+        <div class="title">
+            Game Theory Equilibrium Calculator
+        </div>
+        <br>
+        <hr>
+        <br>
+
+        <center>
+
+        <p class="green">Calculates mixed equilibrium for given matrix. Specific calculations, along with explanations, are shown <a href="learnMore.html">here.</a></p>
+        <br>
+        <p style="margin-bottom:0;" class="green">Click the buttons to rename them or insert/delete rows.</p>
+        <p style="margin-bottom:0;" class="green">Use the '+' buttons to add more rows/columns.</p>
+        <br>
+        <!-- <input checked type="checkbox" id="zs" name="zs">
+        <label for="zs">Game is zero-sum</label> <br>
+        <input type="checkbox" id="zs2" name="zs2">
+        <label for="zs2">Other possible option</label>  -->
+        <div id="answerspace" class="answerspace">
+            poopmilk
+        </div>
+        
+        <hr style="height: 0px; visibility:hidden;">
+        <button class="option" id="rename" onclick="renameButton(selectedButtonId)">Remame</button>
+        <button class="option" id="delete" onclick="removeColumn()">Delete</button>
+        <button class="option" id="insert" onclick="insertColumn(1,1)">Insert</button>
+        <button class="option" id="cancel" onclick="hideOptions()">Cancel</button>
+        <br><br>
+
+        <form>
+            <table id="table" class="table">
+                <tr>
+                    <td><button type="button" id="title" onclick="renameButton('title')">
+                        Title
+                    </td></button>
+                    <td><button type="button" id="rock1" onclick="setSelectedButtonID('rock1')">
+                        Rock
+                    </td></button>
+                    <td><button type="button" id="paper1" onclick="setSelectedButtonID('paper1')">
+                        Paper
+                    </td></button>
+                    <td><button type="button" id="scissors1" onclick="setSelectedButtonID('scissors1')">
+                        Scissors
+                    </td></button>
+                    <td><button type="button" onclick="insertColumn(0,1)">
+                        +
+                    </td></button>
+                </tr>
+
+                <tr>
+                    <td><button type="button" id="rock2" onclick="setSelectedButtonID('rock2')">
+                        Rock
+                    </td></button>
+                    <td>
+                        <input type="text" value="0">
+                    </td>
+                    <td>
+                        <input type="text" value="-1">
+                    </td>
+                    <td>
+                        <input type="text" value="1">
+                    </td>
+                    <td>
+                        -
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><button type="button" id="paper2" onclick="setSelectedButtonID('paper2')">
+                        Paper
+                    </td></button>
+                    <td>
+                        <input type="text" value="1">
+                    </td>
+                    <td>
+                        <input type="text" value="0">
+                    </td>
+                    <td>
+                        <input type="text" value="-1">
+                    </td>
+                    <td>
+                        -
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><button type="button" id="scissors2" onclick="setSelectedButtonID('scissors2')">
+                        Scissors
+                    </td></button>
+                    <td>
+                        <input type="text" value="-1">
+                    </td>
+                    <td>
+                        <input type="text" value="1">
+                    </td>
+                    <td>
+                        <input type="text" value="0">
+                    </td>
+                    <td>
+                        -
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><button type="button" onclick="insertRowPos(0,1)">
+                        +
+                    </td></button>
+                    <td>
+                        -
+                    </td>
+                    <td>
+                        -
+                    </td>
+                    <td>
+                        -
+                    </td>
+                    <td>
+                        -
+                    </td>
+                </tr>
+            </table>
+        </form> 
+        <br>
+        <button onclick="calculateBranch()">Calculate</button>
+        <button onclick="saveTable()">Save</button>
+        <br>
+        <button onclick="copySaveString()" id="copy" class="option">Copy</button>
+        <br>
+        <input id="loadString" style="width: 60%;">
+        <button onclick="loadSavedTable()">Load</button>
+        </center>
+    </head>
+
+<script>
+var selectedButtonId = "";
+var A=[],mat=[],str=[],x=[],y=[];
+var n,n1,n2,m,m1,mess,val,vsave;
+const table = document.getElementById("table");
+var id = newID();
+
+function setSelectedButtonID(id) {
+    //prompt(document.getElementById(id).innerHTML);
+    selectedButtonId = id;
+
+    document.getElementById("rename").style.visibility = "visible";
+    document.getElementById("delete").style.visibility = "visible";
+    document.getElementById("insert").style.visibility = "visible";
+    document.getElementById("cancel").style.visibility = "visible";
+
+    // Find if button clicked exists in top row, if not, its a row button
+    const rows = table.querySelectorAll('tr');
+    const firstRow = table.rows[0];
+    var columnIndex = -1;
+    for (let i = 0; i < firstRow.cells.length; i++) {
+        cell = firstRow.cells[i];
+        // Check if the cell contains the element with the given ID
+        element = cell.querySelector(`#${selectedButtonId}`);
+        if (element) {
+            columnIndex = i; // Return the column index if found
+            break;
+        }
+    }
+
+    if (columnIndex == -1) {
+        // Row operations
+        document.getElementById('delete').onclick = function() { removeRow(); }
+        document.getElementById('insert').onclick = function() { insertRowPos(1,1); }
+    } else {
+        // Column operations
+        document.getElementById('delete').onclick = function() { removeColumn(); }
+        document.getElementById('insert').onclick = function() { insertColumn(1,1); }
+    }
+}
+
+function renameButton(id) {
+    let newTitle = prompt("Enter a title:")
+
+    if (newTitle != null && newTitle != "") {
+        document.getElementById(id).innerHTML = newTitle;
+    }
+
+    hideOptions();
+}
+
+function hideOptions() {
+    document.getElementById("rename").style.visibility = "hidden";
+    document.getElementById("delete").style.visibility = "hidden";
+    document.getElementById("insert").style.visibility = "hidden";
+    document.getElementById("cancel").style.visibility = "hidden";
+}
+
+function insertColumn(columnIndex, columnTitle) {
+    const rows = table.rows;
+
+    var cell,element;
+
+    if (columnIndex == 0) {
+        columnIndex = table.rows[0].cells.length - 1;
+    } else {
+        const firstRow = table.rows[0];
+
+        for (let i = 0; i < firstRow.cells.length; i++) {
+            cell = firstRow.cells[i];
+            // Check if the cell contains the element with the given ID
+            element = cell.querySelector(`#${selectedButtonId}`);
+            if (element) {
+                columnIndex = i+1; // Return the column index if found
+                break;
+            }
+        }
+    }
+
+    // Insert header cell
+    var columnHeader="";
+    if (columnTitle == 0) {
+        columnHeader = "tmp";
+    } else {
+        columnHeader = prompt("New column title:");
+        if (columnHeader == "") {
+            columnHeader = "tmp";
+        }
+        if (columnHeader == null) {
+            hideOptions();
+            return;
+        }
+    }
+
+    const headerRow = rows[0];
+    const headerCell = headerRow.insertCell(columnIndex);
+
+    const button = document.createElement('button');
+
+    button.textContent = columnHeader;
+    button.type = "button";
+    button.id = "c_"+id();
+    headerCell.appendChild(button);
+    button.onclick = function() { setSelectedButtonID(this.id); };
+
+    hideOptions();
+
+  // Insert data cells
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const dataCell = row.insertCell(columnIndex);
+
+    if (i != rows.length-1) {
+        var input = document.createElement('input');
+        input.type = "input";
+        input.id = "i_"+id();
+        input.value = 0;
+        input.type = "text";
+        dataCell.appendChild(input);
+    } else {
+        dataCell.textContent = '-';
+    }
+  }
+}
+
+function removeColumn() {
+    const rows = table.querySelectorAll('tr');
+
+    const firstRow = table.rows[0];
+    for (let i = 0; i < firstRow.cells.length; i++) {
+        cell = firstRow.cells[i];
+        // Check if the cell contains the element with the given ID
+        element = cell.querySelector(`#${selectedButtonId}`);
+        if (element) {
+            columnIndex = i; // Return the column index if found
+            break;
+        }
+    }
+
+    for (let i = 0; i < rows.length; i++) {
+        rows[i].deleteCell(columnIndex);
+    }
+
+    hideOptions();
+}
+
+function insertRowPos(rowIndex, rowTitle) {
+    var rowIndexCalc;
+
+    if (rowIndex == 0) {
+        rowIndexCalc = table.rows.length - 1;
+    } else {
+        for (let rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
+            const row = table.rows[rowIndex];
+        
+            // Check if the row contains the element with the given ID
+            const element = row.querySelector(`#${selectedButtonId}`);
+            if (element) {
+                rowIndexCalc = rowIndex+1;
+                break;
+            }
+        }
+    }
+
+    var rowHeader="";
+    if (rowTitle == 0) {
+        rowHeader = "tmp";
+    } else {
+        rowHeader = prompt("New row title:");
+        if (rowHeader == "") {
+            rowHeader = "tmp";
+        }
+        if (rowHeader == null) {
+            hideOptions();
+            return;
+        }
+    }
+
+    const cellCount = table.rows[0].cells.length;
+
+    const newRow = table.insertRow(rowIndexCalc);
+    const cellHeader = newRow.insertCell(0);
+    const button = document.createElement('button');
+
+    button.type = "button";
+    button.textContent = rowHeader;
+    button.id = "r_"+id();
+    cellHeader.appendChild(button);
+
+    button.onclick = function() { setSelectedButtonID(this.id); };
+
+    for (let i = 1; i < cellCount-1; i++) {
+        const cell = newRow.insertCell(i);
+
+        var input = document.createElement('input');
+        input.type = "text";
+        input.id = "i_"+id();
+        input.value = 0;
+        cell.appendChild(input);
+    }
+
+    const cellTail = newRow.insertCell(cellCount-1);
+    cellTail.textContent = "-";
+
+    hideOptions();
+}
+
+function removeRow() {
+    for (let rowIndex = 0; rowIndex < table.rows.length; rowIndex++) {
+        const row = table.rows[rowIndex];
+        
+        // Check if the row contains the element with the given ID
+        const element = row.querySelector(`#${selectedButtonId}`);
+        if (element) {
+            row.remove();
+            break;
+        }
+    }
+
+    hideOptions();
+}
+
+function newID() {
+    var i = 0;
+    return function() {
+        return i++;
+    }
+}
+
+function saveTable() {
+    var spacingChar = ".";
+    var saveString = "";
+    const rowNum = table.rows.length;
+    const colNum = table.rows[0].cells.length;
+
+    saveString = saveString + rowNum.toString() + spacingChar + colNum.toString() + spacingChar;
+
+    for (let i = 0; i < colNum-1; i++) {
+        var buttonName = table.rows[0].cells[i].textContent.trim();
+        saveString = saveString + buttonName + spacingChar;
+    }
+    for (let i = 1; i < rowNum-1; i++) {
+        var buttonName = table.rows[i].cells[0].textContent.trim();
+        saveString = saveString + buttonName + spacingChar;
+    }
+
+    for (let i = 0; i < rowNum; i++) {
+        for (let j = 0; j < colNum; j++) {
+            if (i > 0 && j > 0 && i < rowNum-1 && j < colNum-1) {
+                var data = table.rows[i].cells[j].querySelector('input').value;
+                saveString = saveString + data.toString(16) + spacingChar;
+            }
+        }
+    }
+
+
+    // saveString = saveString.substring(0, saveString.length - 1);
+
+    document.getElementById("loadString").value = saveString;
+    document.getElementById("loadString").select();
+    document.getElementById("copy").style.visibility = "visible";
+}
+
+function loadSavedTable() {
+    var rowNum="",colNum="",name="",i,j
+    var loadString = document.getElementById('loadString').value;
+
+    const currentRowNum = table.rows.length;
+    const currentColNum = table.rows[0].cells.length;
+
+    if (!loadString) {
+        return;
+    }
+
+    // Load number of desired rows and columns
+    while(loadString[0] != '.') {
+        rowNum += loadString[0];
+        loadString = loadString.slice(1)
+    }
+    loadString = loadString.slice(1)
+    while(loadString[0] != '.') {
+        colNum += loadString[0];
+        loadString = loadString.slice(1)
+    }
+    loadString = loadString.slice(1)
+
+    // Load title of table
+    while(loadString[0] != '.') {
+        name += loadString[0];
+        loadString = loadString.slice(1)
+    }
+    table.getElementsByTagName("tr")[0].getElementsByTagName("button")[0].innerHTML = name;
+    name = "";
+    loadString = loadString.slice(1)
+
+    // Change size of table to match loaded table:
+
+    // To many columns
+    if (currentColNum > parseInt(colNum)) {
+        while (table.rows[0].cells.length != parseInt(colNum)) {
+            selectedButtonId = table.rows[0].cells[1].firstChild.id;
+            removeColumn();
+        }
+    } // Too few columns
+    if (currentColNum < parseInt(colNum)) {
+        while (table.rows[0].cells.length != parseInt(colNum)) {
+            insertColumn(1,0);
+        }
+    }
+
+    // To many rows
+    if (currentRowNum > parseInt(rowNum)) {
+        while (table.rows.length != parseInt(rowNum)) {
+            selectedButtonId = table.rows[1].cells[0].firstChild.id;
+            removeRow();
+        }
+    } // Too few rows
+    if (currentRowNum < parseInt(rowNum)) {
+        while (table.rows.length != parseInt(rowNum)) {
+            insertRowPos(0,0);
+        }
+    }
+
+
+    // Fill names of rows
+    for (i = 1; i < parseInt(rowNum)-1; i++) {
+        while(loadString[0] != '.') {
+            name += loadString[0];
+            loadString = loadString.slice(1)
+        }
+        table.getElementsByTagName("tr")[0].getElementsByTagName("button")[i].innerHTML = name;
+        name = "";
+        loadString = loadString.slice(1)
+    }
+    // Fill names of columns
+    for (i = 1; i < parseInt(colNum)-1; i++) {
+        while(loadString[0] != '.') {
+            name += loadString[0];
+            loadString = loadString.slice(1)
+        }
+        table.getElementsByTagName("tr")[i].getElementsByTagName("button")[0].innerHTML = name;
+        name = "";
+        loadString = loadString.slice(1)
+    }
+    
+    // Fill data
+    for (i = 1; i < parseInt(rowNum)-1; i++) {
+        for (let j = 1; j < parseInt(colNum)-1; j++) {
+            while(loadString[0] != '.') {
+                name += loadString[0];
+                loadString = loadString.slice(1)
+            }
+            table.rows[i].cells[j].querySelector('input').value = name;
+            name = "";
+            loadString = loadString.slice(1)
+        }
+    }
+}
+
+function copySaveString() {
+    const inputElement = document.getElementById('loadString');
+    inputElement.select();
+    navigator.clipboard.writeText(inputElement.value);
+}
+
+function calculateBranch() {
+    var i,j,row=[];
+    var rowNum = table.rows.length;
+    var colNum = table.rows[0].cells.length;
+    mat=[];
+
+    for (i = 1; i < rowNum-1; i++) {
+        row=[];
+        for (j = 1; j < colNum-1; j++) {
+            row.push(table.rows[i].cells[j].querySelector('input').value);
+        }
+        mat.push(row);
+    }
+
+    InitA();
+    calculateZS();
+}
+
+function InitA() {
+	var i,j,k
+    var str=[];
+    m = table.rows.length-2;
+    
+	m1=m+1;
+	for (i=0;i<=m1;i++) {
+		A[i]=[];
+		A[i][0]=i;     /* First column */
+	}
+	for (i=1;i<m1;i++) {
+		k=1;
+		j=1;
+		while (j<=mat[i-1].length) {
+			if (mat[i-1][j-1]!="") {
+				A[i][k] = mat[i-1][j-1];
+				k++;
+			}
+			j++;
+		}
+	}
+
+	n1=A[1].length;
+	n=n1-1;
+	n2=n1+1;
+	for (i=1;i<m1;i++) {			/* Last column */
+		A[i][n1]=1.+Math.random()*.0000001;		/*to avoid cycling */
+	}
+	for (j=1;j<n1;j++) {
+		A[0][j]=-j;        /* First row */
+		A[m1][j] = -1;     /* Last row */
+	}
+	A[m1][n1]=0;          /* Lower Right corner */
+	mess = "The matrix is\r";
+	i=1;
+	while (i<m1) {
+		str[i]=""
+		j=1;
+		while (j<n1) {
+			str[i]+=" "+ A[i][j];
+			j++;
+		}
+		mess += str[i]+"\r";
+		i++;
+	}
+
+    makeValuePositive();
+}
+
+function makeValuePositive() {
+	var i,j;
+	vsave=1*A[1][1];    /* Change A to number */
+	j=2;
+	while (j<n1) {		/* Find min first row */
+		s=1*A[1][j];
+		if (vsave>s) {
+			vsave = s;
+		}
+		j++;
+	}
+	vsave=vsave-1;
+	i=1;
+	while (i<m1) {
+		j=1;
+		while (j<n1) {
+			A[i][j]=A[i][j]-vsave;
+			j++;
+		}
+		i++;
+	}
+
+    Solve();
+}
+
+function Solve() {
+	var i,j,p,q,t1,d,epsilon;
+	epsilon=.000000000001
+	//CheckA();
+	q=1;
+	while (q != 0) {			/* Main loop */
+		r=0;
+		for (i=1;i<m1;i++) {	/* Find pivot row */
+			t1=A[i][q];
+			if (t1>epsilon) {     /* To avoid roundoff error */
+				t2=A[i][n1];
+				if (t2<=0) {
+					p=i;
+					i=m1;
+				} else if (t1>t2*r) {
+					p=i;
+					r=t1/t2;
+				}
+			}
+		}
+		//alert("(p,q) = "+p+","+q);
+		d=A[p][q];				/* Pivot on (p,q) */
+		j=1;
+		while (j<n2) {				/* Pivot row */
+		    if (j!=q) A[p][j]=A[p][j]/d;
+			j++;
+		}
+		i=1;
+		while (i<=m1) {			/* Pivot main part */
+		    if (i != p) {
+			    j=1;
+				while (j<=n1) {
+				    if (j != q) A[i][j]=A[i][j]-A[i][q]*A[p][j];
+				    j++;
+				}
+		    }
+			i++;
+		}
+		i=1;
+		while (i<=m1) {			/* Pivot col */
+		    if (i != p) A[i][q] = (0.-A[i][q])/d;
+			i++;
+		}
+		A[p][q]=1./d;
+		t1=A[p][0];
+		A[p][0]=A[0][q];
+		A[0][q]=t1;				/* End pivot */
+		//CheckA();
+		q=0;
+		j=1;
+		while (j<n1) {			/* Find pivot col */
+		    if (A[m1][j]<0) {
+			    q=j;
+				j=n1;
+		    }
+			j++;
+		}
+	}
+
+    ValueOptimalStrategies();
+}
+
+function ValueOptimalStrategies() {
+	x[0]=0;
+	val=1./A[m1][n1];
+	var j=1;
+	while (j<n1) {
+	    if (A[0][j] < 0) {
+ 	    	y[0-A[0][j]]=0
+	    } else {
+		    x[A[0][j]] = A[m1][j]*val;
+	    }
+		j++;
+	}
+	var i=1;
+	while (i<m1) {
+	    if (A[i][0] < 0) {
+	    	y[0-A[i][0]]= A[i][n1]*val;
+	    } else {
+		    x[A[i][0]] = 0;
+	    }
+		i++;
+	}
+
+    display();
+}
+
+function display() {
+	var i,j,t,opt1,opt2,output,ans;
+
+	val=val+vsave;
+	var t=Math.round(10000000*val)/100000;
+    t=Math.trunc(t)/100;
+    ans = t;
+	var t=Math.round(100000000*x[1])/100000;
+    t=Math.trunc(t)/10;
+
+    var title = table.rows[0].cells[1].textContent;
+	opt1= "Row player: ";
+    var colorValue = 255 - Math.round((t/100) * 255);
+    table.getElementsByTagName("tr")[1].getElementsByTagName("button")[0].style.backgroundColor = `rgb(255, ${colorValue}, ${colorValue})`;
+
+    if (t != 0) {
+        opt1 += title+"<"+t+"> |";
+    }
+	i=2;
+	while (i<=m) {
+		t=Math.round(100000000*x[i])/100000;
+        t=Math.trunc(t)/10;
+        if (t != 0) {
+            title = table.rows[i].cells[0].textContent;
+		    opt1+=title+"<"+t+"> |";
+        }
+        colorValue = 255 - Math.round((t/100) * 255);
+        table.getElementsByTagName("tr")[i].getElementsByTagName("button")[0].style.backgroundColor = `rgb(255, ${colorValue}, ${colorValue})`;
+		i++;
+	}
+	
+	var t=Math.round(100000000*y[1])/100000;
+    t=Math.trunc(t)/10;
+	title = table.rows[0].cells[1].textContent;
+	opt2= "Col player: ";
+    colorValue = 255 - Math.round((t/100) * 255);
+    table.getElementsByTagName("tr")[0].getElementsByTagName("button")[1].style.backgroundColor = `rgb(255, ${colorValue}, ${colorValue})`;
+
+    if (t != 0) {
+        opt2 += title+"<"+t+"> |";
+    }
+	j=2;
+	while (j<=n) {
+		t=Math.round(100000000*y[j])/100000;
+        t=Math.trunc(t)/10;
+        if (t != 0) {
+            title = table.rows[0].cells[j].textContent;
+		    opt2+=title+"<"+t+"> |";
+        }
+
+        colorValue = 255 - Math.round((t/100) * 255);
+        table.getElementsByTagName("tr")[0].getElementsByTagName("button")[j].style.backgroundColor = `rgb(255, ${colorValue}, ${colorValue})`;
+		j++;
+	}
+	mess+=opt1+opt2; 
+
+    output=opt1+opt2;
+
+    document.getElementById('answerspace').style.display = "block";
+    document.getElementById('answerspace').innerHTML = "Average: " + ans + "<br>" + opt1 + "<br>" + opt2;
+}
+
+</script>
+</html>
